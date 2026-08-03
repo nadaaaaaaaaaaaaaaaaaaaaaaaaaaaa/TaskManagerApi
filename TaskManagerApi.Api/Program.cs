@@ -1,4 +1,6 @@
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
+using TaskManagerApi.Api.Data;
 using TaskManagerApi.Api.Repositories;
 using TaskManagerApi.Api.Repositories.Interfaces;
 using TaskManagerApi.Api.Services;
@@ -9,6 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<ITaskService, TaskService>();
+
+// Database
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Swagger / OpenAPI documentation
 builder.Services.AddEndpointsApiExplorer();
