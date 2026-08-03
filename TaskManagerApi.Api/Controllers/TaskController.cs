@@ -16,15 +16,30 @@ namespace TaskManagerApi.Api.Controllers
             _taskService = taskService;
         }
 
-        // GET /api/tasks?search=meeting&isCompleted=false&page=1&pageSize=5&sortBy=title
+        /// <summary>
+        /// Retrieves a paginated, filtered, and sorted list of tasks.
+        /// </summary>
+        /// <param name="filterParams">
+        /// Query parameters for filtering (search, isCompleted, createdAfter, createdBefore),
+        /// sorting (sortBy), and pagination (page, pageSize).
+        /// </param>
+        /// <response code="200">Returns the paginated list of tasks matching the filter criteria.</response>
         [HttpGet]
+        [ProducesResponseType(typeof(PagedResult<TaskItem>), StatusCodes.Status200OK)]
         public IActionResult GetAll([FromQuery] TaskFilterParams filterParams)
         {
             return Ok(_taskService.GetAllTasks(filterParams));
         }
 
-        // GET /api/tasks/2
+        /// <summary>
+        /// Retrieves a single task by its unique identifier.
+        /// </summary>
+        /// <param name="id">The unique identifier of the task.</param>
+        /// <response code="200">Returns the requested task.</response>
+        /// <response code="404">No task exists with the specified id.</response>
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(TaskItem), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetById(int id)
         {
             var task = _taskService.GetTaskById(id);
@@ -33,8 +48,15 @@ namespace TaskManagerApi.Api.Controllers
             return Ok(task);
         }
 
-        // POST /api/tasks
+        /// <summary>
+        /// Creates a new task.
+        /// </summary>
+        /// <param name="task">The task details to create. Only the Title is currently used.</param>
+        /// <response code="201">The task was created successfully. Returns the created task and its location.</response>
+        /// <response code="400">The request body was invalid.</response>
         [HttpPost]
+        [ProducesResponseType(typeof(TaskItem), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult Create([FromBody] TaskItem task)
         {
             var created = _taskService.CreateTask(task.Title);
