@@ -26,9 +26,10 @@ namespace TaskManagerApi.Api.Controllers
         /// <response code="200">Returns the paginated list of tasks matching the filter criteria.</response>
         [HttpGet]
         [ProducesResponseType(typeof(PagedResult<TaskItem>), StatusCodes.Status200OK)]
-        public IActionResult GetAll([FromQuery] TaskFilterParams filterParams)
+        public async Task<IActionResult> GetAll([FromQuery] TaskFilterParams filterParams)
         {
-            return Ok(_taskService.GetAllTasks(filterParams));
+            var result = await _taskService.GetAllTasksAsync(filterParams);
+            return Ok(result);
         }
 
         /// <summary>
@@ -40,9 +41,9 @@ namespace TaskManagerApi.Api.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(TaskItem), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var task = _taskService.GetTaskById(id);
+            var task = await _taskService.GetTaskByIdAsync(id);
             if (task is null)
                 return NotFound();
             return Ok(task);
@@ -51,16 +52,51 @@ namespace TaskManagerApi.Api.Controllers
         /// <summary>
         /// Creates a new task.
         /// </summary>
-        /// <param name="task">The task details to create. Only the Title is currently used.</param>
-        /// <response code="201">The task was created successfully. Returns the created task and its location.</response>
+        /// <param name="task">The task details to create.</param>
+        /// <response code="201">The task was created successfully.</response>
         /// <response code="400">The request body was invalid.</response>
         [HttpPost]
         [ProducesResponseType(typeof(TaskItem), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult Create([FromBody] TaskItem task)
+        public async Task<IActionResult> Create([FromBody] TaskItem task)
         {
-            var created = _taskService.CreateTask(task.Title);
+            var created = await _taskService.CreateTaskAsync(task.Title, task.UserId, task.Description);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        }
+
+        /// <summary>
+        /// Updates an existing task's title, description, and/or completion status.
+        /// </summary>
+        /// <param name="id">The unique identifier of the task to update.</param>
+        /// <param name="task">The fields to update.</param>
+        /// <response code="200">Returns the updated task.</response>
+        /// <response code="404">No task exists with the specified id.</response>
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(TaskItem), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Update(int id, [FromBody] TaskItem task)
+        {
+            var updated = await _taskService.UpdateTaskAsync(id, task.Title, task.Description, task.IsCompleted);
+            if (updated is null)
+                return NotFound();
+            return Ok(updated);
+        }
+
+        /// <summary>
+        /// Deletes a task by its unique identifier.
+        /// </summary>
+        /// <param name="id">The unique identifier of the task to delete.</param>
+        /// <response code="204">The task was deleted successfully.</response>
+        /// <response code="404">No task exists with the specified id.</response>
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var deleted = await _taskService.DeleteTaskAsync(id);
+            if (!deleted)
+                return NotFound();
+            return NoContent();
         }
     }
 }

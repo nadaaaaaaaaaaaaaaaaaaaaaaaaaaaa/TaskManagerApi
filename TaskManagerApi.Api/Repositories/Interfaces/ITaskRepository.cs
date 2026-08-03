@@ -1,9 +1,12 @@
 using TaskManagerApi.Api.Models.Entities;
+
 namespace TaskManagerApi.Api.Repositories.Interfaces;
 
 public interface ITaskRepository
 {
-    List<TaskItem> GetAll();
-    TaskItem? GetById(int id);
-    TaskItem Add(TaskItem task);
+    IQueryable<TaskItem> Query();
+    Task<TaskItem?> GetByIdAsync(int id);
+    Task<TaskItem> AddAsync(TaskItem task);
+    Task<TaskItem?> UpdateAsync(int id, string? title, string? description, bool? isCompleted);
+    Task<bool> DeleteAsync(int id);
 }

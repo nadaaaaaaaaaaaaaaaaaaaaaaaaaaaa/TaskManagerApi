@@ -5,8 +5,10 @@ namespace TaskManagerApi.Api.Services.Interfaces
 {
     public interface ITaskService
     {
-        PagedResult<TaskItem> GetAllTasks(TaskFilterParams filterParams);
-        TaskItem? GetTaskById(int id);
-        TaskItem CreateTask(string title);
+        Task<PagedResult<TaskItem>> GetAllTasksAsync(TaskFilterParams filterParams);
+        Task<TaskItem?> GetTaskByIdAsync(int id);
+        Task<TaskItem> CreateTaskAsync(string title, int userId, string? description);
+        Task<TaskItem?> UpdateTaskAsync(int id, string? title, string? description, bool? isCompleted);
+        Task<bool> DeleteTaskAsync(int id);
     }
 }
