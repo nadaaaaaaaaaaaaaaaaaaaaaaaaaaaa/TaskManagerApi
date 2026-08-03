@@ -20,7 +20,8 @@ namespace TaskManagerApi.Api.Mapping
             CreateMap<UpdateTaskRequest, TaskItem>()
                 .ForMember(dest => dest.Title, opt => opt.Condition(src => src.Title != null))
                 .ForMember(dest => dest.Description, opt => opt.Condition(src => src.Description != null))
-                .ForMember(dest => dest.IsCompleted, opt => opt.Condition(src => src.IsCompleted.HasValue));
+                .ForMember(dest => dest.IsCompleted, opt => opt.Condition(src => src.IsCompleted.HasValue))
+                .ForMember(dest => dest.DueDate, opt => opt.Condition(src => src.DueDate.HasValue));
         }
     }
 }

@@ -5,10 +5,15 @@ using TaskManagerApi.Api.Repositories;
 using TaskManagerApi.Api.Repositories.Interfaces;
 using TaskManagerApi.Api.Services;
 using TaskManagerApi.Api.Services.Interfaces;
+using TaskManagerApi.Api.Validators;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateTaskRequestValidator>();
 builder.Services.AddAutoMapper(cfg => { }, typeof(Program).Assembly);
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<ITaskService, TaskService>();
