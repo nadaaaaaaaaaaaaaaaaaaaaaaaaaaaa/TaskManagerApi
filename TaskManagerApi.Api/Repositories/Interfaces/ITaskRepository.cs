@@ -7,6 +7,6 @@ public interface ITaskRepository
     IQueryable<TaskItem> Query();
     Task<TaskItem?> GetByIdAsync(int id);
     Task<TaskItem> AddAsync(TaskItem task);
-    Task<TaskItem?> UpdateAsync(int id, string? title, string? description, bool? isCompleted);
+    Task<TaskItem?> UpdateAsync(TaskItem task);
     Task<bool> DeleteAsync(int id);
 }

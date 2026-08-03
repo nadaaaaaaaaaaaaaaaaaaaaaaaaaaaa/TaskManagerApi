@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TaskManagerApi.Api.Models;
-using TaskManagerApi.Api.Models.Entities;
+using TaskManagerApi.Api.Models.DTOs;
 using TaskManagerApi.Api.Services.Interfaces;
 
 namespace TaskManagerApi.Api.Controllers
@@ -23,9 +23,9 @@ namespace TaskManagerApi.Api.Controllers
         /// Query parameters for filtering (search, isCompleted, createdAfter, createdBefore),
         /// sorting (sortBy), and pagination (page, pageSize).
         /// </param>
-        /// <response code="200">Returns the paginated list of tasks matching the filter criteria.</response>
+        /// <response code="200">Returns the paginated list of task summaries matching the filter criteria.</response>
         [HttpGet]
-        [ProducesResponseType(typeof(PagedResult<TaskItem>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PagedResult<TaskSummaryDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAll([FromQuery] TaskFilterParams filterParams)
         {
             var result = await _taskService.GetAllTasksAsync(filterParams);
@@ -39,7 +39,7 @@ namespace TaskManagerApi.Api.Controllers
         /// <response code="200">Returns the requested task.</response>
         /// <response code="404">No task exists with the specified id.</response>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(TaskItem), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(TaskItemDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetById(int id)
         {
@@ -52,38 +52,38 @@ namespace TaskManagerApi.Api.Controllers
         /// <summary>
         /// Creates a new task.
         /// </summary>
-        /// <param name="task">The task details to create.</param>
+        /// <param name="request">The task details to create.</param>
         /// <response code="201">The task was created successfully.</response>
         /// <response code="400">The request body was invalid.</response>
         [HttpPost]
-        [ProducesResponseType(typeof(TaskItem), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(TaskItemDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Create([FromBody] TaskItem task)
+        public async Task<IActionResult> Create([FromBody] CreateTaskRequest request)
         {
-            var created = await _taskService.CreateTaskAsync(task.Title, task.UserId, task.Description);
+            var created = await _taskService.CreateTaskAsync(request);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         /// <summary>
-        /// Updates an existing task's title, description, and/or completion status.
+        /// Updates an existing task.
         /// </summary>
         /// <param name="id">The unique identifier of the task to update.</param>
-        /// <param name="task">The fields to update.</param>
-        /// <response code="200">Returns the updated task.</response>
+        /// <param name="request">The fields to update.</param>
+        /// <response code="200">The task was updated successfully.</response>
         /// <response code="404">No task exists with the specified id.</response>
         [HttpPut("{id}")]
-        [ProducesResponseType(typeof(TaskItem), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(TaskItemDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Update(int id, [FromBody] TaskItem task)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateTaskRequest request)
         {
-            var updated = await _taskService.UpdateTaskAsync(id, task.Title, task.Description, task.IsCompleted);
+            var updated = await _taskService.UpdateTaskAsync(id, request);
             if (updated is null)
                 return NotFound();
             return Ok(updated);
         }
 
         /// <summary>
-        /// Deletes a task by its unique identifier.
+        /// Deletes a task.
         /// </summary>
         /// <param name="id">The unique identifier of the task to delete.</param>
         /// <response code="204">The task was deleted successfully.</response>

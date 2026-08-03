@@ -1,14 +1,14 @@
 using TaskManagerApi.Api.Models;
-using TaskManagerApi.Api.Models.Entities;
+using TaskManagerApi.Api.Models.DTOs;
 
 namespace TaskManagerApi.Api.Services.Interfaces
 {
     public interface ITaskService
     {
-        Task<PagedResult<TaskItem>> GetAllTasksAsync(TaskFilterParams filterParams);
-        Task<TaskItem?> GetTaskByIdAsync(int id);
-        Task<TaskItem> CreateTaskAsync(string title, int userId, string? description);
-        Task<TaskItem?> UpdateTaskAsync(int id, string? title, string? description, bool? isCompleted);
+        Task<PagedResult<TaskSummaryDto>> GetAllTasksAsync(TaskFilterParams filterParams);
+        Task<TaskItemDto?> GetTaskByIdAsync(int id);
+        Task<TaskItemDto> CreateTaskAsync(CreateTaskRequest request);
+        Task<TaskItemDto?> UpdateTaskAsync(int id, UpdateTaskRequest request);
         Task<bool> DeleteTaskAsync(int id);
     }
 }

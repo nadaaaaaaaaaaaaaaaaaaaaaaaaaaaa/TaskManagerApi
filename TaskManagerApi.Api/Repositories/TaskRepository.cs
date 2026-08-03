@@ -28,25 +28,15 @@ public class TaskRepository : ITaskRepository
         return task;
     }
 
-    public async Task<TaskItem?> UpdateAsync(int id, string? title, string? description, bool? isCompleted)
+    public async Task<TaskItem?> UpdateAsync(TaskItem task)
     {
-        var task = await _context.Tasks.FindAsync(id);
-        if (task is null)
+        var existing = await _context.Tasks.FindAsync(task.Id);
+        if (existing is null)
             return null;
 
-        if (title is not null)
-            task.Title = title;
-
-        if (description is not null)
-            task.Description = description;
-
-        if (isCompleted.HasValue)
-            task.IsCompleted = isCompleted.Value;
-
-        task.UpdatedAt = DateTime.UtcNow;
-
+        _context.Entry(existing).CurrentValues.SetValues(task);
         await _context.SaveChangesAsync();
-        return task;
+        return existing;
     }
 
     public async Task<bool> DeleteAsync(int id)
